@@ -21,8 +21,8 @@ export default function ({ selectedCategory }) {
   const topRef = useRef(null);
   const onePage = 9;
   const category = searchParams.get("category") || "house-plants";
-  const min = searchParams.get("range_min"); 
-  const max = searchParams.get("range_max"); 
+  const min = searchParams.get("range_min") || 0; 
+  const max = searchParams.get("range_max") || 1000; 
 
   useEffect(() => {
     setCurrentPage(1);
