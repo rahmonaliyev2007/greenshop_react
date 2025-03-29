@@ -3,20 +3,20 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
 const accessToken = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN
 
 const fetchFlowers = async ({ queryKey }) => {
   const [_key, category, sort, filter, min, max] = queryKey;
-  const response = await fetch(`${api}flower/category/${category}?access_token=${accessToken}&sort=${sort}&filter=${filter}&range_min=${min}&range_max=${max}`);
-  if (!response.ok) throw new Error("Failed to fetch products");
+  const response = await fetch(`${api}flower/category/${category}?access_token=${accessToken}&sort=${sort}&type=${filter}&range_min=${min}&range_max=${max}`);
   return response.json();
 }
 
-export default function ({ selectedCategory }) {
+export default function ({  }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sort, setSortOrder] = useState(searchParams.get("sort") || "default-sorting");
-  const [selectedFilter, setSelectedFilter] = useState(searchParams.get("filter") || "all-plants");
+  const [selectedFilter, setSelectedFilter] = useState(searchParams.get("type") || "all-plants");
   const [currentPage, setCurrentPage] = useState(1);
   const topRef = useRef(null);
   const onePage = 9;
@@ -26,17 +26,11 @@ export default function ({ selectedCategory }) {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory]);
+  }, []);
 
   useEffect(() => {
-    setSearchParams({ 
-      category, 
-      sort, 
-      filter: selectedFilter, 
-      range_min: min || "", 
-      range_max: max || "" 
-    });
-  }, [category, sort, selectedFilter, min, max, setSearchParams]);
+    setSearchParams({ category, sort, type: selectedFilter, range_min: min, range_max: max });
+  }, [category, sort, selectedFilter, min, max]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -48,6 +42,8 @@ export default function ({ selectedCategory }) {
   const { data: products = { data: [] }, error, isLoading, isFetching } = useQuery({
     queryKey: ["flower", category, sort, selectedFilter, min, max],
     queryFn: () => fetchFlowers({ queryKey: ["flower", category, sort, selectedFilter, min, max] }),
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 10,
   });
 
   const normalizedProducts = Array.isArray(products.data) ? products.data : [];
@@ -59,10 +55,7 @@ export default function ({ selectedCategory }) {
       <div ref={topRef} className="flex justify-between items-center mb-10">
         <ul className="flex justify-start  items-center gap-5 font-semibold">
           {[{ label: "All Plants", value: "all-plants" }, { label: "New Arrivals", value: "new-arrivals" }, { label: "Sale", value: "sale" }].map(({ label, value }) => (
-            <li key={value} className={`cursor-pointer ${selectedFilter === value ? "text-[#46A358] border-b border-b-[#46A358]" : "hover:text-[#46A358]"}`} onClick={() => {
-              setSelectedFilter(value);
-              setSearchParams({ category, sort, filter: value, min, max });
-            }}>
+            <li key={value} className={`cursor-pointer border-b ${selectedFilter === value ? "text-[#46A358] border-b-[#46A358]" : "hover:text-[#46A358] border-b-transparent"} transi`} onClick={() => {setSelectedFilter(value);setSearchParams({ category, sort, type: value, range_min: min, range_max: max });}}>
               {label}
             </li>
           ))}
@@ -71,7 +64,7 @@ export default function ({ selectedCategory }) {
           <p>Sorting:
             <select name="sort" className="outline-none font-normal" id="sort" value={sort} onChange={(e) => {
               setSortOrder(e.target.value);
-              setSearchParams({ category, sort: e.target.value, filter: selectedFilter, min, max });
+              setSearchParams({ category, sort: e.target.value, type: selectedFilter, range_min: min, range_max: max });
             }}>
               <option value="default-sorting">Default Sorting</option>
               <option value="the-cheapest">The Cheapest</option>
@@ -110,7 +103,7 @@ export default function ({ selectedCategory }) {
             ))}
             <button className="p-2 bg-gray-200 rounded disabled:opacity-50" disabled={currentPage === totalPages} onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))} > <ChevronRight /></button>
           </div>
-        </>) : (<div>No any Product</div>)}
+        </>) : (<div className="text-3xl">No any Product </div>)}
     </div>
   );
 }

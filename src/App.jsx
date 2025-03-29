@@ -6,6 +6,7 @@ import { Route, Routes } from "react-router-dom";
 import NotFound from "./components/NotFound";
 import Home from "./pages/home";
 import Navbar from "./components/Navbar";
+import Shop from "./pages/Shop/index.jsx";
 import Footer from "./components/Footer.jsx";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route element={<Home />} path="/" />
+        <Route element={<Shop />} path="/shop" />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

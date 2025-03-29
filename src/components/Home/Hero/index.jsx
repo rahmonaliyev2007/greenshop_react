@@ -32,7 +32,7 @@ const HeroCarousel = () => {
     const carouselRef = useRef(null);
 
     return (
-        <div className="relative max-w-[1240px] m-auto px-4 mt-4 ">
+        <div className="relative max-w-[1240px] m-auto mt-4 ">
             <Carousel ref={carouselRef} autoplay autoplaySpeed={4000} dots={false} beforeChange={(from, to) => setCurrentSlide(to)}>
                 {slides.map((slide, index) => (
                     <div key={index} className="flex items-center justify-center bg-[#F5F5F5] rounded-xl max-sm:h-[200px] max-sm:pl-3 max-md:h-[250px] h-[400px] pl-10">
@@ -51,8 +51,10 @@ const HeroCarousel = () => {
                                 </button>
                             </div>
 
-                            <div className="flex justify-end items-end max-lg:max-w-[30%] max-sm:hidden">
-                                <img  src={slide.img} alt={slide.suptitle || "Carousel img"} className="max-w-[390px] max-h-[390px]" width={390} height={390} priority />
+                            <div className="flex justify-end items-end max-lg:max-w-[30%] max-sm:hidden relative">
+                                <img  src={slide.img} alt={slide.suptitle || "Carousel img"} className="max-w-[390px] max-h-[390px] max-lg:max-w-[300px] max-md:max-w-[160px]" width={390} height={390} priority />
+                                <img  src={slide.img} alt={slide.suptitle || "Carousel img"} className="max-w-[130px] max-h-[130px] absolute bottom-3 left-0 -translate-x-10 max-md:max-w-[0px]" />
+
                             </div>
                         </div>
                     </div>
