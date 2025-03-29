@@ -35,9 +35,10 @@ const CategoriesMain = () => {
   };
 
   useEffect(() => {
-    const min = searchParams.get("range_min");
-    const max = searchParams.get("range_max");
-    setFilteredPrice([Number(min), Number(max)]);
+    const min = Number(searchParams.get("range_min")) || 0;
+    const max = Number(searchParams.get("range_max")) || 1000;
+    setPrice([min, max]);
+    setFilteredPrice([min, max]);
   }, [searchParams]);
 
   return (
