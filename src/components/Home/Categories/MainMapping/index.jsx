@@ -1,0 +1,116 @@
+import ProductCard from "../../../ProductCard";
+import { useState, useRef, useEffect } from "react";
+import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
+const accessToken = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN
+
+const fetchFlowers = async ({ queryKey }) => {
+  const [_key, category, sort, filter, min, max] = queryKey;
+  const response = await fetch(`${api}flower/category/${category}?access_token=${accessToken}&sort=${sort}&filter=${filter}&range_min=${min}&range_max=${max}`);
+  if (!response.ok) throw new Error("Failed to fetch products");
+  return response.json();
+}
+
+export default function ({ selectedCategory }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [sort, setSortOrder] = useState(searchParams.get("sort") || "default-sorting");
+  const [selectedFilter, setSelectedFilter] = useState(searchParams.get("filter") || "all-plants");
+  const [currentPage, setCurrentPage] = useState(1);
+  const topRef = useRef(null);
+  const onePage = 9;
+  const category = searchParams.get("category") || "house-plants";
+  const min = searchParams.get("range_min"); 
+  const max = searchParams.get("range_max"); 
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    setSearchParams({ 
+      category, 
+      sort, 
+      filter: selectedFilter, 
+      range_min: min || "", 
+      range_max: max || "" 
+    });
+  }, [category, sort, selectedFilter, min, max, setSearchParams]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const { data: products = { data: [] }, error, isLoading, isFetching } = useQuery({
+    queryKey: ["flower", category, sort, selectedFilter, min, max],
+    queryFn: () => fetchFlowers({ queryKey: ["flower", category, sort, selectedFilter, min, max] }),
+  });
+
+  const normalizedProducts = Array.isArray(products.data) ? products.data : [];
+  const totalPages = Math.ceil(normalizedProducts.length / onePage);
+  const paginatedProducts = normalizedProducts.slice((currentPage - 1) * onePage, currentPage * onePage);
+
+  return (
+    <div className="w-[74%] lg:pl-5 pt-0 max-lg:w-full">
+      <div ref={topRef} className="flex justify-between items-center mb-10">
+        <ul className="flex justify-start  items-center gap-5 font-semibold">
+          {[{ label: "All Plants", value: "all-plants" }, { label: "New Arrivals", value: "new-arrivals" }, { label: "Sale", value: "sale" }].map(({ label, value }) => (
+            <li key={value} className={`cursor-pointer ${selectedFilter === value ? "text-[#46A358] border-b border-b-[#46A358]" : "hover:text-[#46A358]"}`} onClick={() => {
+              setSelectedFilter(value);
+              setSearchParams({ category, sort, filter: value, min, max });
+            }}>
+              {label}
+            </li>
+          ))}
+        </ul>
+        <div className="flex max-md:hidden justify-end gap-3 items-center font-semibold">
+          <p>Sorting:
+            <select name="sort" className="outline-none font-normal" id="sort" value={sort} onChange={(e) => {
+              setSortOrder(e.target.value);
+              setSearchParams({ category, sort: e.target.value, filter: selectedFilter, min, max });
+            }}>
+              <option value="default-sorting">Default Sorting</option>
+              <option value="the-cheapest">The Cheapest</option>
+              <option value="most-expensive">Most Expensive</option>
+            </select>
+          </p>
+        </div>
+        <button className="md:hidden"><SlidersHorizontal /></button>
+      </div>
+
+      {isLoading || isFetching ? (
+        <div className="grid grid-cols-2 lg:grid-cols-3 justify-items-center gap-5">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <div key={i} className="max-w-[300px] w-full border-t-2 border-t-transparent hover:border-t-[#46A358] transi group rounded">
+              <div className="card_img relative transi rounded overflow-hidden">
+                <div className="bg-[#FBFBFB] loading transi w-full h-[275px] flex justify-center items-center">
+                  <div className="w-full h-auto object-contain mix-blend-multiply scale-100 group-hover:scale-110 transi" />
+                </div>
+              </div>
+              <div>
+                <h4 className="transi my-2 w-[60%] loading h-[25px]"></h4>
+                <p className="w-[40%] h-[24px] loading"></p>
+              </div>
+            </div>
+          ))}
+        </div>) : paginatedProducts?.length > 0 ? (<>
+          <div className="grid grid-cols-2 sm:grid-cols-3 justify-items-center gap-5">
+            {paginatedProducts.map(product => (
+              <ProductCard key={product?.id} data={product} />
+            ))}
+          </div>
+          <div className="flex justify-center sm:justify-end items-center gap-2 mt-5">
+            <button className="p-2 bg-gray-200 rounded disabled:opacity-40" disabled={currentPage === 1} onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}> <ChevronLeft /> </button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button key={i} onClick={() => handlePageChange(i + 1)} className={`px-4 py-2 rounded ${currentPage === i + 1 ? "bg-[#46A358] text-white" : "bg-gray-200"}`}>{i + 1}</button>
+            ))}
+            <button className="p-2 bg-gray-200 rounded disabled:opacity-50" disabled={currentPage === totalPages} onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))} > <ChevronRight /></button>
+          </div>
+        </>) : (<div>No any Product</div>)}
+    </div>
+  );
+}
