@@ -4,7 +4,7 @@ import Register from './Register'
 import Login from './Login'
 import '../../index.css'
 
-function Auth({ isLoginOpen, isRegisterOpen }) {
+function Auth({ isLoginOpen, isRegisterOpen, setIsModalOpen , setIsLogged}) {
     useEffect(() => {
         const login = document.getElementById('login')
         const register = document.getElementById('register')
@@ -17,10 +17,10 @@ function Auth({ isLoginOpen, isRegisterOpen }) {
     return (
         <div className="auth-container">
             <div id='login' className="transi">
-                {isLoginOpen && <Login />}
+                {isLoginOpen && <Login setIsModalOpen={setIsModalOpen} setIsLogged={setIsLogged} />}
             </div>
             <div id='register' className="transi">
-                {isRegisterOpen && <Register />}
+                {isRegisterOpen && <Register setIsModalOpen={setIsModalOpen} setIsLogged={setIsLogged}/>}
             </div>
         </div>
     )

@@ -13,20 +13,15 @@ const fetchFlowers = async ({ queryKey }) => {
   return response.json();
 }
 
-export default function ({  }) {
+export default function ({currentPage, setCurrentPage}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sort, setSortOrder] = useState(searchParams.get("sort") || "default-sorting");
   const [selectedFilter, setSelectedFilter] = useState(searchParams.get("type") || "all-plants");
-  const [currentPage, setCurrentPage] = useState(1);
   const topRef = useRef(null);
-  const onePage = 9;
+  const onePage = 6;
   const category = searchParams.get("category") || "house-plants";
   const min = searchParams.get("range_min") || 0; 
   const max = searchParams.get("range_max") || 1000; 
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, []);
 
   useEffect(() => {
     setSearchParams({ category, sort, type: selectedFilter, range_min: min, range_max: max });
@@ -34,9 +29,7 @@ export default function ({  }) {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    if (topRef.current) {
-      topRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    if (topRef.current) {topRef.current.scrollIntoView({ behavior: "smooth" })}
   };
 
   const { data: products = { data: [] }, error, isLoading, isFetching } = useQuery({
@@ -51,7 +44,7 @@ export default function ({  }) {
   const paginatedProducts = normalizedProducts.slice((currentPage - 1) * onePage, currentPage * onePage);
 
   return (
-    <div className="w-[74%] lg:pl-5 pt-0 max-lg:w-full">
+    <div className="w-[76%] lg:pl-5 pt-0 max-lg:w-full">
       <div ref={topRef} className="flex justify-between items-center mb-10">
         <ul className="flex justify-start  items-center gap-5 font-semibold">
           {[{ label: "All Plants", value: "all-plants" }, { label: "New Arrivals", value: "new-arrivals" }, { label: "Sale", value: "sale" }].map(({ label, value }) => (
@@ -97,11 +90,24 @@ export default function ({  }) {
             ))}
           </div>
           <div className="flex justify-center sm:justify-end items-center gap-2 mt-5">
-            <button className="p-2 bg-gray-200 rounded disabled:opacity-40" disabled={currentPage === 1} onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}> <ChevronLeft /> </button>
+            <button className="p-2 bg-gray-200 rounded disabled:opacity-40"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+            >
+              <ChevronLeft />
+            </button>
             {Array.from({ length: totalPages }, (_, i) => (
-              <button key={i} onClick={() => handlePageChange(i + 1)} className={`px-4 py-2 rounded ${currentPage === i + 1 ? "bg-[#46A358] text-white" : "bg-gray-200"}`}>{i + 1}</button>
+              <button key={i} onClick={() => handlePageChange(i + 1)}
+                className={`px-4 py-2 rounded ${currentPage === i + 1 ? "bg-[#46A358] text-white" : "bg-gray-200"}`}>
+                {i + 1}
+              </button>
             ))}
-            <button className="p-2 bg-gray-200 rounded disabled:opacity-50" disabled={currentPage === totalPages} onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))} > <ChevronRight /></button>
+            <button className="p-2 bg-gray-200 rounded disabled:opacity-50"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+            >
+              <ChevronRight />
+            </button>
           </div>
         </>) : (<div className="text-3xl">No any Product </div>)}
     </div>

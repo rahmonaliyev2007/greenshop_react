@@ -75,7 +75,7 @@ import { LogOut, Search, ShoppingCart, Heart, User, LogOutIcon } from "lucide-re
 // import Register from "./auth/Register";
 // import { useRouter } from "next/navigation";
 // import useAuthStore from "@/store/authStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from 'antd';
 // import { useSelector } from "react-redux";
 import { Link, NavLink, useNavigate, useParams } from "react-router-dom";
@@ -84,26 +84,19 @@ import Auth from "../Auth";
 
 
 export default function Navbar() {
+  const [user, setUser] = useState(null);
   const { pathname } = useParams();
   const router = useNavigate();
-  const { isLogged } = false;
-  // const { user } = useAuthStore();
+  const [isLogged, setIsLogged] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   // const cartItems = useSelector((state) => state.cart.cart.length);
   // const likedItems = useSelector((state) => state.liked.liked.length);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => {
-    setIsModalOpen(true);
-    setIsLoginOpen(true);
-    setIsRegisterOpen(false);
+  const showModal = () => {setIsModalOpen(true);setIsLoginOpen(true);setIsRegisterOpen(false);
   };
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
+  const handleOk = () => {setIsModalOpen(false)};
+  const handleCancel = () => {setIsModalOpen(false)};
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Shop", path: "/shop" },
@@ -111,6 +104,14 @@ export default function Navbar() {
     { name: "Plant Care", path: "/plantcare" },
   ];
 
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user")) || null;
+    setUser(user);
+    if (user) {
+      setIsLogged(true);
+    }
+  }, [isLogged])
   return (
     <nav className="top-0 sticky w-full z-50 bg-white">
       <div className="flex justify-between items-center max-w-[1240px] mx-auto py-5">
@@ -123,7 +124,7 @@ export default function Navbar() {
               <NavLink
                 to={link.path}
                 className={({ isActive }) =>
-                  `py-[29px] border-b-2 transition-all ${isActive ? "border-[#46A358] text-[#46A358]" : "border-transparent hover:text-[#46A358]"
+                  `py-[29px] border-b-2 transi hover:text-[#46A358] ${isActive ? "border-[#46A358] text-[#46A358]" : "border-transparent "
                   }`
                 }
               >
@@ -143,33 +144,20 @@ export default function Navbar() {
                         )} */}
           </button>
 
-          <button type="button" onClick={showModal} className="bg-[#46A358] font-semibold hover:bg-[#46A358]/70 px-4 py-2 rounded-md text-white flex items-center gap-2 transition-all">
-            <LogOutIcon size={16} className="font-semibold" /> Login
-          </button>
+
 
 
           {isLogged ? (
             <div className="flex items-center gap-3">
-              <button onClick={() => router.push("/profile/account")} className="bg-[#46A358] hover:bg-[#46A358]/70 px-4 py-2 rounded-md text-white flex items-center gap-2 transition-all">
-                <User size={16} /> {user?.name || "User"}
+              <button onClick={() => router("/profile/account")} className="bg-[#46A358] hover:bg-[#46A358]/70 px-4 py-2 rounded-md text-white flex items-center gap-2 transition-all">
+                <User size={16} /> {user?.user?.name || "User"}
               </button>
             </div>
           ) : (
             <div>
-              {/* <Dialog>
-                            <DialogTrigger onClick={() => { setIsLoginOpen(true); setIsRegisterOpen(false); }} className="bg-[#46A358] hover:bg-[#46A358]/70 px-4 py-2 rounded-md text-white flex items-center gap-2 transition-all">
-                                <LogOut size={16} /> Login
-                            </DialogTrigger>
-                            <DialogContent className="max-w-md">
-                                <div className="w-full my-4 flex justify-center items-center gap-3 text-xl font-semibold">
-                                    <button onClick={() => { setIsLoginOpen(true); setIsRegisterOpen(false); }} className={`${isLoginOpen ? "text-[#46A358]" : ""}`}>Login</button>
-                                    <div className="border-r-2 border-gray-300 h-4"></div>
-                                    <button onClick={() => { setIsLoginOpen(false); setIsRegisterOpen(true); }} className={`${!isLoginOpen ? "text-[#46A358]" : ""}`}>Register</button>
-                                </div>
-                                {isLoginOpen && <Login />}
-                                {isRegisterOpen && <Register />}
-                            </DialogContent>
-                        </Dialog> */}
+              <button type="button" onClick={showModal} className="bg-[#46A358] font-semibold hover:bg-[#46A358]/70 px-4 py-2 rounded-md text-white flex items-center gap-2 transition-all">
+                <LogOutIcon size={16} className="font-semibold" /> Login
+              </button>
             </div>
           )}
         </div>
@@ -178,13 +166,12 @@ export default function Navbar() {
         <hr className="bg-[#46a3597f] border-none w-full h-[2px]"></hr>
       </div>
       <Modal className="transi" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
-
         <div className="w-full my-4 flex justify-center items-center gap-3 text-xl font-semibold">
           <button onClick={() => { setIsLoginOpen(true); setIsRegisterOpen(false); }} className={`${isLoginOpen ? "text-[#46A358]" : ""}`}>Login</button>
           <div className="border-r-2 border-gray-300 h-4"></div>
           <button onClick={() => { setIsLoginOpen(false); setIsRegisterOpen(true); }} className={`${!isLoginOpen ? "text-[#46A358]" : ""}`}>Register</button>
         </div>
-        <Auth isLoginOpen={isLoginOpen} isRegisterOpen={isRegisterOpen} />
+        <Auth isLoginOpen={isLoginOpen} isRegisterOpen={isRegisterOpen} isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} setIsLogged={setIsLogged} />
       </Modal>
     </nav>
   );

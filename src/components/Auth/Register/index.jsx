@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
+const apikey = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN
+
 // import { useSignUpMutation } from '@/app/redux/Rtk';
 // import { useRouter } from 'next/navigation';
 // import { toast } from 'sonner';
 // import useAuthStore from '@/store/authStore';
 
-function Register() {
+function Register({setIsModalOpen, setIsLogged}) {
   const [user, setUser] = useState({ name: '', surname: '', email: '', password: '' });
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
-    const [isLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
   
 //   const [addPost, { isLoading, error }] = useSignUpMutation();
 //   const router = useRouter();
@@ -32,19 +39,21 @@ function Register() {
       setErrors(newErrors);
       return;
     }
+    setIsLoading(true)
 
     try {
-      const response = await addPost(user).unwrap();
-      const { setUser, setToken } = useAuthStore.getState();
-      toast.success("Registration has been complated succesfullt 🎉");
-      setUser(response?.data?.user, response?.data?.token);
-      setToken(response?.data?.token);
+      const response = await axios.post(`${api}user/sign-up?access_token=${apikey}`, user);
+      localStorage.setItem('user' , JSON.stringify(response?.data?.data));
       setUser({ name: '', surname: '', email: '', password: '' });
       setConfirmPassword('');
+      setIsLogged(true);
+      setIsModalOpen(false);
       setErrors({});
-      router.push('/profile');
+      setIsLoading(false)
+      toast.success(`${response?.data?.data?.user?.name} Registration successfully completed!`);
+      navigate('/profile/account')
     } catch (err) {
-      setErrors({ apiError: err?.data?.extraMessage || 'Registration failed.' });
+      setErrors({ apiError: err.response?.data?.extraMessage || 'Registration failed.' });
     }
   };
 

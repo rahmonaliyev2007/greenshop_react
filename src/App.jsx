@@ -1,6 +1,3 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import NotFound from "./components/NotFound";
@@ -8,19 +5,34 @@ import Home from "./pages/home";
 import Navbar from "./components/Navbar";
 import Shop from "./pages/Shop/index.jsx";
 import Footer from "./components/Footer.jsx";
+import Profile from "./pages/Profile/Profile.jsx";
+import Account from "./pages/Profile/ProfileComponents/Account.jsx";
+import MyProducts from "./pages/Profile/ProfileComponents/MyProducts.jsx";
+import Wishlist from "./pages/Profile/ProfileComponents/Wishlist.jsx";
+import { ConfigProvider, App as AntdApp } from "antd";
+import { Toaster } from "sonner";
+import Address from "./pages/Profile/ProfileComponents/Address.jsx";
 
 function App() {
   return (
-    <>
-      <Navbar />
-      <Routes>
-        <Route element={<Home />} path="/" />
-        <Route element={<Shop />} path="/shop" />
-
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Footer />
-    </>
+    <ConfigProvider>
+      <AntdApp>
+        <Toaster position="top-right" richColors />
+        <Navbar />
+        <Routes>
+          <Route element={<Home />} path="/" />
+          <Route element={<Shop />} path="/shop" />
+          <Route element={<Profile />} path="/profile">
+            <Route element={<Account />} path="account" />
+            <Route element={<MyProducts />} path="myproducts" />
+            <Route element={<Address />} path="address" />
+            <Route element={<Wishlist />} path="wishlist" />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Footer />
+      </AntdApp>
+    </ConfigProvider>
   );
 }
 

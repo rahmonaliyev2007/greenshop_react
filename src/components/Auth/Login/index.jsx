@@ -1,16 +1,16 @@
+import axios from 'axios';
 import React, { useState } from 'react';
-// import { useSignInMutation } from '@/app/redux/Rtk';
-// import { useRouter } from 'next/navigation';
-// import { toast } from 'sonner';
-// import useAuthStore  from '@/store/authStore';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
-function Login() {
+const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
+const apikey = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN
+
+function Login({setIsModalOpen, setIsLogged}) {
   const [user, setUser] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
-  const [isLoading] = useState(false)
-//   const [signIn, { isLoading }] = useSignInMutation();
-//   const router = useRouter();
-//   const { setUser: setAuthUser, setToken } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate()
   
   const handleSetValue = (e) => {
     const { name, value } = e.target;
@@ -29,17 +29,22 @@ function Login() {
       setErrors(newErrors);
       return;
     }
-
+    setIsLoading(true)
     try {
-      const response = await signIn(user).unwrap();
-      toast.success("Login has been Successfully 🎉");
-      setAuthUser(response?.data?.user, response?.data?.token);
-      setToken(response?.data?.token);
+      const response = await axios.post(`${api}user/sign-in?access_token=${apikey}`, user);
+      localStorage.setItem('user' , JSON.stringify(response?.data?.data));
       setUser({ email: '', password: '' });
+      setIsLogged(true);
+      setIsModalOpen(false); 
       setErrors({});
-      router.push('/profile');
+      setIsLoading(false)
+      toast.success(`You Successfully logged in as ${response?.data?.data?.user?.name}`);
+
+      navigate('/profile/account')
     } catch (err) {
-      setErrors({ apiError: err?.data?.extraMessage || 'Login failed. ' });
+      setErrors({ apiError: err?.response?.data?.extraMessage || 'Login failed. ' });
+      toast.error(`Failed on login, please make sure you have entered the correct email and password`);
+
     }
   };
 

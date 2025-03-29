@@ -1,6 +1,4 @@
 import { Slider } from "antd";
-import Discount from "./Discount";
-
 const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
 const apikey = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +18,7 @@ const fetchSaleBanner = async () => {
 };
 
 const CategoriesMain = () => {
+  const [currentPage, setCurrentPage] = useState(1);
 
     const { data, isLoading, isFetching, error } = useQuery({
         queryKey: ["categories"],
@@ -56,7 +55,7 @@ const CategoriesMain = () => {
 
     return (
         <div className="max-w-[1240px] m-auto flex justify-between items-start gap-6 mt-10">
-            <div className="w-[24%]  max-lg:hidden bg-[#FBFBFB] pt-4 rounded-xl overflow-hidden">
+            <div className="w-[22%]  max-lg:hidden bg-[#FBFBFB] pt-4 rounded-xl overflow-hidden">
                 <div className="px-3">
                     <h3 className="font-bold text-lg">Categories</h3>
                     {isLoading || isFetching || error ? (
@@ -69,7 +68,7 @@ const CategoriesMain = () => {
                         <ul className="transi">
                             {data?.data.map(({ id, title, route_path, count }) => (
                                 <li key={id || route_path || title}
-                                    onClick={() => updateSort(route_path)}
+                                    onClick={() => {updateSort(route_path); setCurrentPage(1)}}
                                     className={`cursor-pointer ${route_path === category ? "text-[#46A358] font-semibold " : "hover:text-[#46A358] font-normal"} pl-4 transi flex justify-between items-center pr-2 my-2`} >
                                     {title} <span>({
                                         route_path === 'seeds' ? count + 1 :
@@ -83,7 +82,7 @@ const CategoriesMain = () => {
                     )}
                 </div>
                 <div className="mt-4 px-3">
-                    <h2 className="font-semibold mb-2">Price Range</h2>
+                    <h2 className="font-semibold mb-2 text-lg">Price Range</h2>
                     <div className="px-3">
                         <Slider range min={0} max={1000} step={1} value={price} trackStyle={[{ backgroundColor: "#46A358" }]} onChange={(value) => setPrice(value)} />
                     </div>
@@ -91,7 +90,7 @@ const CategoriesMain = () => {
                     <button onClick={handleFilterApply} className="cursor-pointer mt-2 px-4 py-2 font-semibold rounded-lg bg-[#46A358] text-white">Filter</button>
                 </div>
                 <ul className="mt-5 mb-10 px-3">
-                    <li className="font-bold">Size</li>
+                    <li className="font-bold text-lg">Size</li>
                     <li><div className="flex justify-between text-sm items-center pl-2 text-gray-400 cursor-not-allowed pr-4 my-2"><p>Small</p> <span>(17)</span></div></li>
                     <li><div className="flex justify-between text-sm items-center pl-2 text-gray-400 cursor-not-allowed pr-4 my-2"><p>Medium</p> <span>(20)</span></div></li>
                     <li><div className="flex justify-between text-sm items-center pl-2 text-gray-400 cursor-not-allowed pr-4 my-2"><p>Large</p> <span>(14)</span></div></li>
@@ -105,7 +104,7 @@ const CategoriesMain = () => {
                         </>)}
                 </div>
             </div>
-            <MainMapping />
+            <MainMapping currentPage={currentPage} setCurrentPage={setCurrentPage} />
         </div>
     );
 };
