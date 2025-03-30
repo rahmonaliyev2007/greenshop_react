@@ -1,40 +1,58 @@
+import axios from "axios";
 import { Heart, Search, ShoppingCart } from "lucide-react";
-// import { useRouter } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import { addToCart, removeFromCart } from "../app/redux/slices/cartSlice";
-// import { toggleLike } from "../app/redux/slices/likedSlice";
-// import { toast } from "sonner";
+import { toast } from "sonner";
+const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
+const accessToken = JSON.parse(localStorage.getItem("user"))?.user?._id || '64bebc1e2c6d3f056a8c85b7';
+
+const LikeFlower = async (route_path, flower_id, name, setIsLiked) => {
+    try {
+        const response = await axios.post(`${api}/user/create-wishlist?access_token=${accessToken}`, {
+            route_path,
+            flower_id
+        });
+
+        if (response.data.message === 'success') {
+            toast.success(`${name} added to your wishlist! ❤️`);
+            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            const updatedWishlist = [...wishlist, { route_path, flower_id }];
+            localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+            setIsLiked(true);
+        } else {
+            toast.error(`Failed to add ${name} to wishlist. ❌`);
+        }
+    } catch (error) {
+        console.error("Wishlist error:", error);
+        toast.error("Something went wrong while adding to wishlist.");
+    }
+};
 
 export default function ProductCard({ data }) {
-    const { title: name, _id: id, main_image, price, discount_price, discount: isSale } = data;
+    if (!data) return;
+    const { title: name, _id: id, main_image, price, discount_price, category: route_path, discount: isSale } = data;
+    const Wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const wish = Wishlist.some(item => item.flower_id === id);
     const navigate = useNavigate();
-    // const router = useRouter();
-    // const dispatch = useDispatch();
-    // const cartItems = useSelector((state) => state.cart.cart);
-    // const likedItems = useSelector((state) => state.liked.liked);
-    // const isInCart = cartItems.some(item => item.id === id);
-    // const isLiked = likedItems.includes(id);
-    const isInCart = false;
-    const isLiked = false;
-
+    const [isLiked, setIsLiked] = useState(wish);
+    const [isInCart, setIsInCart] = useState(false);
     const handleLike = () => {
-        dispatch(toggleLike(id));
         if (isLiked) {
             toast.error("Removed from Wishlist 💔", { description: `${name} has been removed from your wishlist.` });
+            const updatedWishlist = Wishlist.filter(item => item.flower_id !== id);
+            localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+            setIsLiked(false);
         } else {
-            toast.success("Added to Wishlist ❤️", { description: `${name} has been added to your wishlist.` });
+            LikeFlower(route_path, id, name, setIsLiked);
         }
     };
 
     const handleAddToCart = () => {
-        dispatch(addToCart({ id, name, main_image, price }));
         toast.success("Added to Cart 🛒", { description: `${name} has been successfully added to your cart.` });
     };
 
     const handleCartClick = () => {
         if (isInCart) {
-            dispatch(removeFromCart(id));
             toast.error("Removed from Cart 🗑️", { description: `${name} has been removed from your cart.` });
         } else {
             handleAddToCart();
@@ -67,8 +85,8 @@ export default function ProductCard({ data }) {
                     </button>
                 </div>
                 <button onClick={handleLike} className={` sm:hidden absolute top-3 right-3 transi rounded cursor-pointer ${isLiked ? 'text-red-500' : ''}`}>
-                        <Heart size={19} fill={isLiked ? "red" : "none"} />
-                    </button>
+                    <Heart size={19} fill={isLiked ? "red" : "none"} />
+                </button>
                 {isLiked && <div className={`absolute transi rounded-bl max-md:hidden group-hover:opacity-100 group-hover:-top-7 group-hover:-right-10 ${isInCart ? 'opacity-0' : 'opacity-100'} top-0 right-0 bg-[#46A358] text-white text-sm px-2 py-1 font-bold`}>In your Wishlist</div>}
                 {isInCart && <div className={`absolute opacity-100 rounded-bl transi group-hover:opacity-0 group-hover:-top-7 group-hover:-right-10 top-0 right-0 bg-[#46A358] text-white text-sm px-2 py-1 font-bold`}>In your Cart</div>}
                 {isSale && <div className={`absolute opacity-100 max-sm:hidden rounded-br transi group-hover:opacity-0 sm:group-hover:-left-11 sm:group-hover:-top-5 top-0 left-0 bg-[#46A358] text-white px-2 py-[2px] font-bold`}>{discountPercent}% <span className="text-sm">OFF</span></div>}

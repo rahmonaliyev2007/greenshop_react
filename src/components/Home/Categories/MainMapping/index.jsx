@@ -3,25 +3,23 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
-const accessToken = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN
-
+const accessToken = JSON.parse(localStorage.getItem("user"))?.user?._id || '64bebc1e2c6d3f056a8c85b7';
 const fetchFlowers = async ({ queryKey }) => {
   const [_key, category, sort, filter, min, max] = queryKey;
   const response = await fetch(`${api}flower/category/${category}?access_token=${accessToken}&sort=${sort}&type=${filter}&range_min=${min}&range_max=${max}`);
   return response.json();
 }
 
-export default function ({currentPage, setCurrentPage}) {
+export default function ({ currentPage, setCurrentPage }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sort, setSortOrder] = useState(searchParams.get("sort") || "default-sorting");
   const [selectedFilter, setSelectedFilter] = useState(searchParams.get("type") || "all-plants");
   const topRef = useRef(null);
-  const onePage = 6;
+  const onePage = 9;
   const category = searchParams.get("category") || "house-plants";
-  const min = searchParams.get("range_min") || 0; 
-  const max = searchParams.get("range_max") || 1000; 
+  const min = searchParams.get("range_min") || 0;
+  const max = searchParams.get("range_max") || 1000;
 
   useEffect(() => {
     setSearchParams({ category, sort, type: selectedFilter, range_min: min, range_max: max });
@@ -29,7 +27,7 @@ export default function ({currentPage, setCurrentPage}) {
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-    if (topRef.current) {topRef.current.scrollIntoView({ behavior: "smooth" })}
+    if (topRef.current) { topRef.current.scrollIntoView({ behavior: "smooth" }) }
   };
 
   const { data: products = { data: [] }, error, isLoading, isFetching } = useQuery({
@@ -48,7 +46,7 @@ export default function ({currentPage, setCurrentPage}) {
       <div ref={topRef} className="flex justify-between items-center mb-10">
         <ul className="flex justify-start  items-center gap-5 font-semibold">
           {[{ label: "All Plants", value: "all-plants" }, { label: "New Arrivals", value: "new-arrivals" }, { label: "Sale", value: "sale" }].map(({ label, value }) => (
-            <li key={value} className={`cursor-pointer border-b ${selectedFilter === value ? "text-[#46A358] border-b-[#46A358]" : "hover:text-[#46A358] border-b-transparent"} transi`} onClick={() => {setSelectedFilter(value);setSearchParams({ category, sort, type: value, range_min: min, range_max: max });}}>
+            <li key={value} className={`cursor-pointer border-b ${selectedFilter === value ? "text-[#46A358] border-b-[#46A358]" : "hover:text-[#46A358] border-b-transparent"} transi`} onClick={() => { setSelectedFilter(value); setSearchParams({ category, sort, type: value, range_min: min, range_max: max }); }}>
               {label}
             </li>
           ))}
@@ -85,8 +83,8 @@ export default function ({currentPage, setCurrentPage}) {
           ))}
         </div>) : paginatedProducts?.length > 0 ? (<>
           <div className="grid grid-cols-2 sm:grid-cols-3 justify-items-center gap-5">
-            {paginatedProducts.map(product => (
-              <ProductCard key={product?.id} data={product} />
+            {paginatedProducts.map((product, index) => (
+              <ProductCard key={index} data={product} />
             ))}
           </div>
           <div className="flex justify-center sm:justify-end items-center gap-2 mt-5">

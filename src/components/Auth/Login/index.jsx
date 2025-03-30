@@ -33,6 +33,7 @@ function Login({setIsModalOpen, setIsLogged}) {
     try {
       const response = await axios.post(`${api}user/sign-in?access_token=${apikey}`, user);
       localStorage.setItem('user' , JSON.stringify(response?.data?.data));
+      localStorage.setItem('wishlist' , JSON.stringify(response?.data?.data?.user?.wishlist));
       setUser({ email: '', password: '' });
       setIsLogged(true);
       setIsModalOpen(false); 
