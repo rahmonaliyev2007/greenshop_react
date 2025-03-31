@@ -44,7 +44,7 @@ function Wishlist() {
         setCurrentPage(1);
     }, [token]);
 
-    if (isError) return <div>Xatolik yuz berdi!</div>;
+    if (isError) return <div>Something went wrong, please reload the page</div>;
 
     const totalPages = Math.ceil(wishItems.length / itemsPerPage);
     const visibleItems = wishItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -56,11 +56,12 @@ function Wishlist() {
         }
     };
 
+   
     return (
         <div ref={topRef}>
             {isLoading &&
                 <div className="grid grid-cols-2 lg:grid-cols-3 justify-items-center gap-5">
-                    {Array.from({ length: 9 }).map((_, i) => (
+                    {Array.from({ length: 6 }).map((_, i) => (
                         <div key={i} className="max-w-[300px] w-full border-t-2 border-t-transparent hover:border-t-[#46A358] transi group rounded">
                             <div className="card_img relative transi rounded overflow-hidden">
                                 <div className="bg-[#FBFBFB] loading transi w-full h-[275px] flex justify-center items-center">
@@ -74,12 +75,13 @@ function Wishlist() {
                         </div>
                     ))}
                 </div>}
+
             <div className='grid grid-cols-2 sm:grid-cols-3 justify-items-center gap-5'>
                 {visibleItems.map((product, index) => (
                     <ProductCard key={index} data={product} />
                 ))}
             </div>
-            {wishItems.length > 6 && <div className="flex justify-center sm:justify-end items-center gap-2 mt-5">
+            {wishItems.length >= 6 && <div className="flex justify-center sm:justify-end items-center gap-2 mt-5">
                 <button className="p-2 bg-gray-200 rounded disabled:opacity-40"
                     disabled={currentPage === 1}
                     onClick={() => handlePageChange(currentPage - 1)}

@@ -28,6 +28,28 @@ const LikeFlower = async (route_path, flower_id, name, setIsLiked) => {
     }
 };
 
+const UnlikeFlower = async (route_path, flower_id, name, setIsLiked) => {
+    try {
+        console.log(flower_id);
+        
+        const response = await axios.delete(`${api}/user/delete-wishlist?access_token=${accessToken}`, {
+            data: { _id: flower_id }
+        });
+        if (response.data.message === 'success') {
+            toast.warning(`${name} removed from your wishlist! 🚫`)
+            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            const updatedWishlist = wishlist.filter(item => item.route_path !== route_path || item.flower_id !== flower_id);
+            localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+            setIsLiked(false);
+        } else {
+            toast.error(`Failed to remove ${name} from wishlist. ❌`);
+        }
+    } catch (error) {
+        console.error("Wishlist error:", error);
+        toast.error("Something went wrong while removing from wishlist.");
+    }
+}
+
 export default function ProductCard({ data }) {
     if (!data) return;
     const { title: name, _id: id, main_image, price, discount_price, category: route_path, discount: isSale } = data;
@@ -43,10 +65,7 @@ export default function ProductCard({ data }) {
             return
         }
         if (isLiked) {
-            toast.error("Removed from Wishlist 💔", { description: `${name} has been removed from your wishlist.` });
-            const updatedWishlist = Wishlist.filter(item => item.flower_id !== id);
-            localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
-            setIsLiked(false);
+            UnlikeFlower(route_path, id, name, setIsLiked);
         } else {
             LikeFlower(route_path, id, name, setIsLiked);
         }
@@ -71,6 +90,7 @@ export default function ProductCard({ data }) {
     };
 
     const discountPercent = calculateDiscountPercent(price, discount_price);
+
 
     return (
         <div className="max-w-[300px] w-full border-t-2 border-t-transparent hover:border-t-[#46A358] transi group rounded">
@@ -102,7 +122,7 @@ export default function ProductCard({ data }) {
                     <p className="text-[#46A358] font-semibold">
                         ${Number(discount_price).toFixed(2)} <span className="line-through text-gray-400 text-xs group-hover:text-sm transi">${price.toFixed(2)}</span>
                     </p>
-                ) : ( <p className="text-black font-semibold">${price.toFixed(2)}</p>)}
+                ) : (<p className="text-black font-semibold">${price.toFixed(2)}</p>)}
             </div>
         </div>
     );
