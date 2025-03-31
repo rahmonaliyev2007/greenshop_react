@@ -149,7 +149,7 @@ export default function Navbar() {
 
           {isLogged ? (
             <div className="flex items-center gap-3">
-              <button onClick={() => router("/profile/account")} className="bg-[#46A358] hover:bg-[#46A358]/70 px-4 py-2 rounded-md text-white flex items-center gap-2 transition-all">
+              <button onClick={() => router("/profile/account")} className="bg-[#46A358] logo  px-4 py-2 rounded-md text-white flex items-center gap-2 transition-all">
                 <User size={16} /> {user?.user?.name || "User"}
               </button>
             </div>

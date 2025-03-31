@@ -12,6 +12,7 @@ import Wishlist from "./pages/Profile/ProfileComponents/Wishlist.jsx";
 import { ConfigProvider, App as AntdApp } from "antd";
 import { Toaster } from "sonner";
 import Address from "./pages/Profile/ProfileComponents/Address.jsx";
+import AboutProduct from "./pages/AboutProduct/index.jsx";
 
 function App() {
   return (
@@ -28,7 +29,8 @@ function App() {
             <Route element={<Address />} path="address" />
             <Route element={<Wishlist />} path="wishlist" />
           </Route>
-          <Route path="*" element={<NotFound />} />
+          <Route element={<AboutProduct />} path="/aboutproduct/:route_path/:id" />
+          <Route element={<NotFound />} path="*" />
         </Routes>
         <Footer />
       </AntdApp>
