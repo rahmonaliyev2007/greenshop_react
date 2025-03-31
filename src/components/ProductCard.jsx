@@ -37,6 +37,11 @@ export default function ProductCard({ data }) {
     const [isLiked, setIsLiked] = useState(wish);
     const [isInCart, setIsInCart] = useState(false);
     const handleLike = () => {
+        const user = JSON.parse(localStorage.getItem("user"))?.user || null;
+        if (!user) {
+            toast.warning('Please Login or register first')
+            return
+        }
         if (isLiked) {
             toast.error("Removed from Wishlist 💔", { description: `${name} has been removed from your wishlist.` });
             const updatedWishlist = Wishlist.filter(item => item.flower_id !== id);

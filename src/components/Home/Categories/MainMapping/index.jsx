@@ -3,7 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
+const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API;
+
 const accessToken = JSON.parse(localStorage.getItem("user"))?.user?._id || '64bebc1e2c6d3f056a8c85b7';
 const fetchFlowers = async ({ queryKey }) => {
   const [_key, category, sort, filter, min, max] = queryKey;
@@ -37,9 +38,8 @@ export default function ({ currentPage, setCurrentPage }) {
     cacheTime: 1000 * 60 * 10,
   });
 
-  const normalizedProducts = Array.isArray(products.data) ? products.data : [];
-  const totalPages = Math.ceil(normalizedProducts.length / onePage);
-  const paginatedProducts = normalizedProducts.slice((currentPage - 1) * onePage, currentPage * onePage);
+  const totalPages = Math.ceil(products?.data?.length / onePage);
+  const paginatedProducts = products?.data?.slice((currentPage - 1) * onePage, currentPage * onePage);
 
   return (
     <div className="w-[76%] lg:pl-5 pt-0 max-lg:w-full">
