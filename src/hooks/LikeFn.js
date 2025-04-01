@@ -11,7 +11,7 @@ export const LikeFlower = async (route_path, flower_id, name, setIsLiked) => {
         });
 
         if (response.data.message === 'success') {
-            toast.success(`${name} added to your wishlist! ❤️`);
+            toast.success(`${name} ❤️`, { description: ` added to your wishlist 😍 !` });
             const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
             const updatedWishlist = [...wishlist, { route_path, flower_id }];
             localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
@@ -33,7 +33,7 @@ export const UnlikeFlower = async (route_path, flower_id, name, setIsLiked) => {
             data: { _id: flower_id }
         });
         if (response.data.message === 'success') {
-            toast.warning(`${name} removed from your wishlist! 🚫`)
+            toast.error(`${name} 💔`, { description: ` removed from your wishlist 😩 ! ` });
             const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
             const updatedWishlist = wishlist.filter(item => item.route_path !== route_path || item.flower_id !== flower_id);
             localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
