@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import ProductCard from '../../../components/ProductCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
+import {MainMappingLoading} from '../../../components/Loading';
 
 const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API;
 
@@ -60,21 +61,7 @@ function Wishlist() {
     return (
         <div ref={topRef}>
             {isLoading &&
-                <div className="grid grid-cols-2 lg:grid-cols-3 justify-items-center gap-5">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="max-w-[300px] w-full border-t-2 border-t-transparent hover:border-t-[#46A358] transi group rounded">
-                            <div className="card_img relative transi rounded overflow-hidden">
-                                <div className="bg-[#FBFBFB] loading transi w-full h-[275px] flex justify-center items-center">
-                                    <div className="w-full h-auto object-contain mix-blend-multiply scale-100 group-hover:scale-110 transi" />
-                                </div>
-                            </div>
-                            <div>
-                                <h4 className="transi my-2 w-[60%] loading h-[25px]"></h4>
-                                <p className="w-[40%] h-[24px] loading"></p>
-                            </div>
-                        </div>
-                    ))}
-                </div>}
+                <MainMappingLoading length={6} />}
 
             <div className='grid grid-cols-2 sm:grid-cols-3 justify-items-center gap-5'>
                 {visibleItems.map((product, index) => (

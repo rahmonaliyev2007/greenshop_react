@@ -13,6 +13,7 @@ import { ConfigProvider, App as AntdApp } from "antd";
 import { Toaster } from "sonner";
 import Address from "./pages/Profile/ProfileComponents/Address.jsx";
 import AboutProduct from "./pages/AboutProduct/index.jsx";
+import AboutUser from "./pages/AboutUser/AboutUser.jsx";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route element={<Wishlist />} path="wishlist" />
           </Route>
           <Route element={<AboutProduct />} path="/aboutproduct/:route_path/:id" />
+          <Route element={<AboutUser />} path="/aboutuser/:userID" />
           <Route element={<NotFound />} path="*" />
         </Routes>
         <Footer />

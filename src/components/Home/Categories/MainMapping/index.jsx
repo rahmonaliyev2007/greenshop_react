@@ -3,14 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API;
-
-const accessToken = JSON.parse(localStorage.getItem("user"))?.user?._id || '64bebc1e2c6d3f056a8c85b7';
-const fetchFlowers = async ({ queryKey }) => {
-  const [_key, category, sort, filter, min, max] = queryKey;
-  const response = await fetch(`${api}flower/category/${category}?access_token=${accessToken}&sort=${sort}&type=${filter}&range_min=${min}&range_max=${max}`);
-  return response.json();
-}
+import { fetchFlowers } from "../../../../hooks/LikeFn";
+import {MainMappingLoading} from "../../../Loading";
 
 export default function ({ currentPage, setCurrentPage }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -67,21 +61,7 @@ export default function ({ currentPage, setCurrentPage }) {
       </div>
 
       {isLoading || isFetching ? (
-        <div className="grid grid-cols-2 lg:grid-cols-3 justify-items-center gap-5">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className="max-w-[300px] w-full border-t-2 border-t-transparent hover:border-t-[#46A358] transi group rounded">
-              <div className="card_img relative transi rounded overflow-hidden">
-                <div className="bg-[#FBFBFB] loading transi w-full h-[275px] flex justify-center items-center">
-                  <div className="w-full h-auto object-contain mix-blend-multiply scale-100 group-hover:scale-110 transi" />
-                </div>
-              </div>
-              <div>
-                <h4 className="transi my-2 w-[60%] loading h-[25px]"></h4>
-                <p className="w-[40%] h-[24px] loading"></p>
-              </div>
-            </div>
-          ))}
-        </div>) : paginatedProducts?.length > 0 ? (<>
+        <MainMappingLoading length={9}/>) : paginatedProducts?.length > 0 ? (<>
           <div className="grid grid-cols-2 sm:grid-cols-3 justify-items-center gap-5">
             {paginatedProducts.map((product, index) => (
               <ProductCard key={index} data={product} />

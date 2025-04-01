@@ -3,52 +3,9 @@ import { Heart, Search, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { LikeFlower, UnlikeFlower } from "../hooks/LikeFn";
 const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
 const accessToken = JSON.parse(localStorage.getItem("user"))?.user?._id || '64bebc1e2c6d3f056a8c85b7';
-
-const LikeFlower = async (route_path, flower_id, name, setIsLiked) => {
-    try {
-        const response = await axios.post(`${api}/user/create-wishlist?access_token=${accessToken}`, {
-            route_path,
-            flower_id
-        });
-
-        if (response.data.message === 'success') {
-            toast.success(`${name} added to your wishlist! ❤️`);
-            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-            const updatedWishlist = [...wishlist, { route_path, flower_id }];
-            localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
-            setIsLiked(true);
-        } else {
-            toast.error(`Failed to add ${name} to wishlist. ❌`);
-        }
-    } catch (error) {
-        console.error("Wishlist error:", error);
-        toast.error("Something went wrong while adding to wishlist.");
-    }
-};
-
-const UnlikeFlower = async (route_path, flower_id, name, setIsLiked) => {
-    try {
-        console.log(flower_id);
-        
-        const response = await axios.delete(`${api}/user/delete-wishlist?access_token=${accessToken}`, {
-            data: { _id: flower_id }
-        });
-        if (response.data.message === 'success') {
-            toast.warning(`${name} removed from your wishlist! 🚫`)
-            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-            const updatedWishlist = wishlist.filter(item => item.route_path !== route_path || item.flower_id !== flower_id);
-            localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
-            setIsLiked(false);
-        } else {
-            toast.error(`Failed to remove ${name} from wishlist. ❌`);
-        }
-    } catch (error) {
-        console.error("Wishlist error:", error);
-        toast.error("Something went wrong while removing from wishlist.");
-    }
-}
 
 export default function ProductCard({ data }) {
     if (!data) return <div>Product Not Valid</div>;
@@ -70,7 +27,7 @@ export default function ProductCard({ data }) {
         if (isLiked) {
             UnlikeFlower(route_path, id, name, setIsLiked);
         } else {
-            LikeFlower(route_path, id, name, setIsLiked);
+            LikeFlower(route_path, id, name, setIsLiked);            
         }
     };
 
