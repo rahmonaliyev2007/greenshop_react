@@ -2,7 +2,7 @@ import React from 'react'
 
 function TrackOrder() {
   return (
-    <div>TrackOrder</div>
+    <div>TrackOrder not available yet</div>
   )
 }
 
