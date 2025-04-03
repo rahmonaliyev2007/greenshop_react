@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { LikeFlower, UnlikeFlower } from "../hooks/LikeFn";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, removeFromCart } from "../redux/cartSlice";
 const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
 const accessToken = JSON.parse(localStorage.getItem("user"))?.user?._id || '64bebc1e2c6d3f056a8c85b7';
 
@@ -17,7 +19,12 @@ export default function ProductCard({ data }) {
     const wish = Wishlist.some(item => item.flower_id === id);
     const navigate = useNavigate();
     const [isLiked, setIsLiked] = useState(wish);
-    const [isInCart, setIsInCart] = useState(false);
+    const cartItems = useSelector((state) => state.cart.cart);
+    const isInCart = cartItems.some(item => item.id === id);
+    const dispatch = useDispatch();
+    
+    
+
     const handleLike = () => {
         const user = JSON.parse(localStorage.getItem("user"))?.user || null;
         if (!user) {
@@ -32,11 +39,13 @@ export default function ProductCard({ data }) {
     };
 
     const handleAddToCart = () => {
-        toast.warning("Cart 🛒", { description: `Cart is not available yet!` });
+        dispatch(addToCart({ id, name, main_image, price }));
+        toast.success("Added to Cart 🛒", { description: `${name} has been successfully added to your cart.` });
     };
 
     const handleCartClick = () => {
         if (isInCart) {
+            dispatch(removeFromCart(id));
             toast.error("Removed from Cart 🗑️", { description: `${name} has been removed from your cart.` });
         } else {
             handleAddToCart();

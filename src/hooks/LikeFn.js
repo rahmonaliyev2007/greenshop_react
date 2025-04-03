@@ -54,6 +54,11 @@ export const fetchFlower = async ({ queryKey }) => {
     return data.data;
 }
 
+export const fetchUser = async ({queryKey})=>{
+    const [_key, id] = queryKey;
+    const {data} = await axios.get(`${api}/user/by_id/${id}?access_token=${accessToken}`);
+    return data.data;
+}
 
 export const fetchUserImg = async ({ queryKey }) => {
     const [_key, id] = queryKey;
