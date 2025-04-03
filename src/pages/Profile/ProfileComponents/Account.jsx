@@ -19,7 +19,7 @@ export default function Account() {
         setName(user?.name || '');
         setEmail(user?.email || '');
         setSurname(user?.surname || '');
-        setPhone(user?.phone_number || '');
+        setPhone(user?.phone_number || JSON.parse(localStorage.getItem('phone_number')) || '');
         setUsername(user?.username || '');
         setID(user?._id || '')
     }, [])
@@ -67,7 +67,7 @@ export default function Account() {
                             <div className='bg-[#FBFBFB] py-2 group-hover:border-r-green-500 transi rounded-l-lg px-3 border-r-2 font-semibold'>
                                 +998
                             </div>
-                            <input className='w-full outline-none rounded-r-lg py-2 px-3 bg-white' placeholder='phone number' type="text" value={phone_number || JSON.parse(localStorage.getItem('phone_number'))} onChange={(e) => setPhone(e.target.value)} required />
+                            <input className='w-full outline-none rounded-r-lg py-2 px-3 bg-white' placeholder='phone number' type="text" value={phone_number} onChange={(e) => setPhone(e.target.value)} required />
                         </div></label>
                 </div>
                 <div className='flex gap-3 justify-between items-center'>
