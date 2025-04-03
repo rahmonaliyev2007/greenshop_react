@@ -3,7 +3,6 @@ import { NavLink, Outlet } from "react-router-dom";
 import { Modal } from "antd";
 
 export default function ProfileLayout() {
-    const { clearCart } = useCartStore();
 
     const handleLogout = () => {
         Modal.confirm({
