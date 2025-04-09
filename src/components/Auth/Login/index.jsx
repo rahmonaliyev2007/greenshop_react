@@ -2,21 +2,36 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { signInWithGoogle } from '../../../../firebase';
+import { Facebook, QrCode } from 'lucide-react';
 
 const api = import.meta.env.VITE_PUBLIC_GREENSHOP_API
 const apikey = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN
 
-function Login({setIsModalOpen, setIsLogged}) {
+function Login({ setIsModalOpen, setIsLogged }) {
   const [user, setUser] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate()
-  
+
   const handleSetValue = (e) => {
     const { name, value } = e.target;
     setUser((prevUser) => ({ ...prevUser, [name]: value }));
     setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
   };
+
+  const easySignInWithGoogle = async () => {
+    const res = await signInWithGoogle()
+    const response = await axios.post(`${api}user/sign-in/google?access_token=${apikey}`, { email: res?.user?.email });
+    localStorage.setItem('user', JSON.stringify(response?.data?.data));
+    localStorage.setItem('wishlist', JSON.stringify(response?.data?.data?.user?.wishlist));
+    setUser({ email: '', password: '' });
+    setIsLogged(true);
+    setIsModalOpen(false);
+    setErrors({});
+    setIsLoading(false)
+    toast.success(`You Successfully logged in as ${response?.data?.data?.user?.name}`);
+  }
 
   const handleLoginCheck = async (e) => {
     e.preventDefault();
@@ -32,11 +47,11 @@ function Login({setIsModalOpen, setIsLogged}) {
     setIsLoading(true)
     try {
       const response = await axios.post(`${api}user/sign-in?access_token=${apikey}`, user);
-      localStorage.setItem('user' , JSON.stringify(response?.data?.data));
-      localStorage.setItem('wishlist' , JSON.stringify(response?.data?.data?.user?.wishlist));
+      localStorage.setItem('user', JSON.stringify(response?.data?.data));
+      localStorage.setItem('wishlist', JSON.stringify(response?.data?.data?.user?.wishlist));
       setUser({ email: '', password: '' });
       setIsLogged(true);
-      setIsModalOpen(false); 
+      setIsModalOpen(false);
       setErrors({});
       setIsLoading(false)
       toast.success(`You Successfully logged in as ${response?.data?.data?.user?.name}`);
@@ -66,7 +81,30 @@ function Login({setIsModalOpen, setIsLogged}) {
         <button type="submit" className='w-full bg-[#46A358] text-lg font-semibold text-white rounded p-2 mt-5'>
           {isLoading ? "Logging In..." : 'Login'}
         </button>
-      </form>
+
+        <div className="flex items-center gap-2 my-6">
+          <div className="flex-1 h-[1px] bg-gray-200"></div>
+          <span className="text-gray-500 text-sm">Or login with</span>
+          <div className="flex-1 h-[1px] bg-gray-200"></div>
+        </div>
+
+        <div className="space-y-3">
+          <button type="button" className="w-full cursor-not-allowed flex items-center gap-3 border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-100 transition">
+            <Facebook />
+            <span className="text-sm font-medium text-gray-700">Login with Facebook</span>
+          </button>
+
+          <button type="button" onClick={easySignInWithGoogle} className="w-full flex items-center gap-3 border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-100 transition">
+            <img src="https://cdn4.iconfinder.com/data/icons/picons-social/57/09-google-3-512.png" alt="google" className="w-5 h-5" />
+            <span className="text-sm font-medium text-gray-700">Login with Google</span>
+          </button>
+
+          <button type="button" className="w-full cursor-not-allowed flex items-center gap-3 border border-gray-300 rounded-md py-2 px-4 hover:bg-gray-100 transition" >
+            <QrCode />
+            <span className="text-sm font-medium text-gray-700">Login with Qr Code</span>
+          </button>
+        </div>
+        </form>
     </div>
   );
 }
