@@ -65,7 +65,7 @@ function Register({ setIsModalOpen, setIsLogged }) {
       setIsLoading(false)
       toast.success(`${response?.data?.data?.user?.name} Registration successfully completed!`);
     } catch (error) {
-      toast.error(error?.response?.data?.extraMessage);
+      toast.error(error?.response?.data?.extraMessage || 'Registration with Google failed.');
     }
   }
 
